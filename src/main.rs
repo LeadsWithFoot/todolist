@@ -8,7 +8,35 @@ fn main() {
 
     loop{
 
-        let mut choice = String::new();
+        
+        //let mut action = String::new();
+        let action = menu();
+
+        if action == "edit" {
+            println!("edit list")
+        } else if action == "delete" {
+            println!("delete item from list")
+        } else if action == "add" {
+            let new_task = adding();
+            println!("Task Added: {}", new_task);
+        } else if action == "quit"{
+            println!("You are exiting the program!");
+            break;
+        } else if action == "ls"{
+            println!("Listing todos");
+        } else{
+            println!("invalid entry: {}", action);
+
+        }
+    }
+
+}
+
+fn menu() -> String {
+    
+        let mut input = String::new();
+
+        //testing, this is in menu_function
 
         println!("Please select an option: 
         1) List Todo List (ENTER: ls)
@@ -18,30 +46,11 @@ fn main() {
         5) To Quit (ENTER: quit)");
 
         io::stdin()
-            .read_line(&mut choice)
+            .read_line(&mut input)
             .expect("Failed to read line");
 
-        println!("You inputed: {}", choice);
-
-        //tc == trimmed choice
-        let tc = choice.trim();
-
-        if tc == "edit" {
-            println!("edit list")
-        } else if tc == "delete" {
-            println!("delete item from list")
-        } else if tc == "add" {
-            let new_task = adding();
-            println!("Task Added: {}", new_task);
-        } else if tc == "quit"{
-            println!("You are exiting the program!");
-            break;
-        } else{
-            println!("invalid entry: {}", choice);
-
-        }
-    }
-
+        println!("You inputed: {}", input);
+        input.trim().to_string()
 }
 
 fn adding() -> String {
