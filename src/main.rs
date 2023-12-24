@@ -36,7 +36,7 @@ fn menu() -> String {
     
         let mut input = String::new();
 
-        //testing, this is in menu_function
+        //testing, this is in menu_function, after i staged it
 
         println!("Please select an option: 
         1) List Todo List (ENTER: ls)
