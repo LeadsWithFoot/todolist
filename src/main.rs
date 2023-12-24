@@ -1,7 +1,27 @@
 use std::io;
+use std::fs::File;
+use std::io::prelude::*;
 
 fn main() {
 
+    let mut file = match File::open("mylist.txt"){
+        Ok(file) => file,
+        Err(err) => {
+            eprintln!("unable to open file, error = {}", err);
+            return;
+        }
+    };
+
+    let mut contents = String::new();
+    match file.read_to_string(&mut contents) {
+        Ok(_) => {
+            println!("File contents: \n{}", contents);
+        }
+        Err(err) => {
+            eprintln!("Error reading file: {}", err);
+            return;
+        }
+    }
     //let mut mylist: Vec<String> = Vec::new();
 
     
@@ -63,6 +83,9 @@ fn adding() -> String {
         .expect("failed to get name of added item");
     
     let trimmed_name = task_name.trim();
+
+    
+
     return trimmed_name.to_string();
 
 }
