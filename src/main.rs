@@ -1,10 +1,17 @@
 use std::io;
 use std::fs::File;
 use std::io::prelude::*;
+use serde::{Deserialize};
+
+#[derive(Debug, Deserialize)]
+struct Task{
+    msg: String,
+    priority: u32,
+}
 
 fn main() {
 
-    let mut file = match File::open("mylist.txt"){
+    let mut file = match File::open("mylist.json") {
         Ok(file) => file,
         Err(err) => {
             eprintln!("unable to open file, error = {}", err);
@@ -13,17 +20,21 @@ fn main() {
     };
 
     let mut contents = String::new();
+    let mut tasks : Vec<Task> = Vec::new();
+
     match file.read_to_string(&mut contents) {
         Ok(_) => {
             println!("File contents: \n{}", contents);
+            tasks = serde_json::from_str(&contents).expect("Unable to parse JSON");
+            for (index, task) in tasks.iter().enumerate() {
+                println!("Index: {}, Task: {:?}", index, task);
+            }
         }
         Err(err) => {
             eprintln!("Error reading file: {}", err);
             return;
         }
     }
-    //let mut mylist: Vec<String> = Vec::new();
-
     
 
     loop{

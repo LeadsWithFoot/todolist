@@ -1,0 +1,7 @@
+[
+    {"msg": "take out trash", "priority": 1},
+
+    {"msg": "call girlfriend", "priority": 2},
+
+    {"msg": "code rust todo list", "priority": 3}
+]
