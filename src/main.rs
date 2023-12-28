@@ -38,36 +38,90 @@ fn main() {
     
 
     loop{
-
-        
-        //let mut action = String::new();
         let action = menu();
 
         if action == "edit" {
-            println!("edit list")
+            edit(&mut tasks);
         } else if action == "delete" {
-            println!("delete item from list")
+            delete(&mut tasks);
         } else if action == "add" {
-            let new_task = adding();
-            println!("Task Added: {}", new_task);
+            adding(&mut tasks);
         } else if action == "quit"{
             println!("You are exiting the program!");
             break;
         } else if action == "ls"{
-            println!("Listing todos");
+            ls(&mut tasks);
         } else{
-            println!("invalid entry: {}", action);
-
+            println!("invalid entry: {} \n Try again!", action);
         }
     }
+}
 
+fn edit(vector: &mut Vec<Task>) {
+    println!("Which task would you like to edit?");
+    println!("Did you want to edit the name or priority of the task?:\n
+                Enter name to change name\n
+                Enter priority to change priority: ");
+}
+
+fn ls(vector: &mut Vec<Task>) {
+    for (index, task) in vector.iter().enumerate() {
+        println!("Index: {}, Task: {:?}", index, task);
+    }
+}
+
+fn delete(vector: &mut Vec<Task>) {
+    
+    //IN FUTURE ADD AUTOFILL FUNCTIONALITY
+
+    loop{
+        let mut choice = String::new();
+
+        println!("Which task would you like to delete?");
+        io::stdin()
+            .read_line(&mut choice)
+            .expect("failed to read line");
+        choice = choice.trim().to_string();
+
+        let mut indextodelete = 0;
+        let mut flag: bool = false;
+        for (index, task) in vector.iter().enumerate() {
+            println!("Index: {}, {:?}", index, task);
+            println!("{:?}",task.msg);
+            println!("{}", choice);
+            if task.msg == choice{
+                indextodelete = index;
+                println!("INDEX IS: {}", index);
+                flag = true;
+            }
+        }
+
+        if flag == true{
+            vector.remove(indextodelete);
+        } else {
+            println!("Task not found!");
+            continue;
+        
+        }
+
+   
+        ls(vector);
+
+        for (index, task) in vector.iter_mut().enumerate() {
+            if index >= indextodelete{
+                println!("{}", task.priority);
+                println!("{}", (task.priority - 1));
+                task.priority -= 1;
+            }
+        }
+        ls(vector);
+        break;
+    }
 }
 
 fn menu() -> String {
     
         let mut input = String::new();
-
-        //testing, this is in menu_function, after i staged it
 
         println!("Please select an option: 
         1) List Todo List (ENTER: ls)
@@ -80,23 +134,36 @@ fn menu() -> String {
             .read_line(&mut input)
             .expect("Failed to read line");
 
-        println!("You inputed: {}", input);
+        println!("You entered: {}", input);
         input.trim().to_string()
 }
 
-fn adding() -> String {
-    println!("What item would you like to add? :");
+fn adding(vector: &mut Vec<Task>) {
+    println!("What task would you like to add? :");
 
     let mut task_name = String::new();
 
     io::stdin()
         .read_line(&mut task_name)
-        .expect("failed to get name of added item");
+        .expect("failed to get name of added task");
     
-    let trimmed_name = task_name.trim();
+    let trimmed_name = task_name.trim().to_string();
 
-    
+    let last_index = vector.len() - 1;
+    let prinum: u32 = last_index as u32;
 
-    return trimmed_name.to_string();
+    if let Some(last_element) = vector.get(last_index) {
+        println!("Last element: {:?}", last_element);
+    } else {
+        println!("Vector is empty or out of bounds");
+    }
 
+    let holder = Task {
+        msg: trimmed_name,
+        priority: (prinum + 2),
+    };
+
+    vector.push(holder);
+
+    ls(vector);
 }
