@@ -1,9 +1,9 @@
 use std::io;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
-use serde::{Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Task{
     msg: String,
     priority: u32,
@@ -11,31 +11,45 @@ struct Task{
 
 fn main() {
 
-    let mut file = match File::open("mylist.json") {
-        Ok(file) => file,
+    let mut file = match OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open("mylist.json"){
+            Ok(file) => file,
+            Err(err) => {
+                eprintln!("unable to open and create file. Error: {}", err);
+                return;
+            }
+        };
+
+    let metadata = match file.metadata() {
+        Ok(metadata) => metadata,
         Err(err) => {
-            eprintln!("unable to open file, error: {}", err);
+            eprintln!("Error getting file metadata to check for file size. Error: {}", err);
             return;
         }
     };
 
-    let mut contents = String::new();
     let mut tasks: Vec<Task> = Vec::new();
 
-    match file.read_to_string(&mut contents) {
-        Ok(_) => {
-            println!("File contents: \n{}", contents);
-            tasks = serde_json::from_str(&contents).expect("Unable to parse JSON");
-            for (index, task) in tasks.iter().enumerate() {
-                println!("Index: {}, Task: {:?}", index, task);
+    if metadata.len() != 0 {
+        let mut contents = String::new();
+
+        match file.read_to_string(&mut contents) {
+            Ok(_) => {
+                println!("File contents: \n{}", contents);
+                tasks = serde_json::from_str(&contents).expect("Unable to parse JSON");
+                for (index, task) in tasks.iter().enumerate() {
+                    println!("Index: {}, Task: {:?}", index, task);
+                }
+            }
+            Err(err) => {
+                eprintln!("Error reading file: {}", err);
+                return;
             }
         }
-        Err(err) => {
-            eprintln!("Error reading file: {}", err);
-            return;
-        }
     }
-    
 
     loop{
         let action = menu();
@@ -45,9 +59,9 @@ fn main() {
         } else if action == "delete" {
             delete(&mut tasks);
         } else if action == "add" {
-            adding(&mut tasks);
+            add(&mut tasks);
         } else if action == "quit"{
-            println!("You are exiting the program!");
+            quit(&mut tasks);
             break;
         } else if action == "ls"{
             ls(&mut tasks);
@@ -55,6 +69,31 @@ fn main() {
             println!("invalid entry: {} \n Try again!", action);
         }
     }
+}
+
+fn quit(vector: &mut Vec<Task>) {
+
+    println!("You are exiting the program!");
+    let serialized_tasks = match serde_json::to_string(&vector){
+        Ok(serial) => serial,
+        Err(err) => {
+            eprintln!("Serialization failed: {}", err);
+            return;
+        }
+    };
+    match File::create("mylist.json") {
+        Ok(mut file) => {
+            match file.write_all(serialized_tasks.as_bytes()) {
+                Ok(_) => println!("Tasks written to file succesfully."),
+                Err(err) => {
+                    eprintln!("error writing to file. Error: {}", err);
+                    return;
+                }
+            }
+        }
+        Err(err) => eprintln!("Error creating / blanking out file {}", err),
+    }
+    
 }
 
 fn edit(vector: &mut Vec<Task>) {
@@ -154,7 +193,7 @@ fn menu() -> String {
         input.trim().to_string()
 }
 
-fn adding(vector: &mut Vec<Task>) {
+fn add(vector: &mut Vec<Task>) {
     println!("What task would you like to add? :");
 
     let mut task_name = String::new();
