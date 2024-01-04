@@ -14,13 +14,13 @@ fn main() {
     let mut file = match File::open("mylist.json") {
         Ok(file) => file,
         Err(err) => {
-            eprintln!("unable to open file, error = {}", err);
+            eprintln!("unable to open file, error: {}", err);
             return;
         }
     };
 
     let mut contents = String::new();
-    let mut tasks : Vec<Task> = Vec::new();
+    let mut tasks: Vec<Task> = Vec::new();
 
     match file.read_to_string(&mut contents) {
         Ok(_) => {
@@ -58,10 +58,27 @@ fn main() {
 }
 
 fn edit(vector: &mut Vec<Task>) {
-    println!("Which task would you like to edit?");
-    println!("Did you want to edit the name or priority of the task?:\n
-                Enter name to change name\n
-                Enter priority to change priority: ");
+    let mut choice = String::new();
+    let mut change = String::new();
+
+    println!("Which task would you like to edit:");
+    io::stdin()
+        .read_line(&mut choice)
+        .expect("failed to get users input");
+
+    println!("Replace task with?: ");
+    io::stdin()
+        .read_line(&mut change)
+        .expect("failed to get user input");
+        
+        choice = choice.trim().to_string();
+        change = change.trim().to_string();
+
+        for task in vector.iter_mut() {
+            if task.msg == choice{
+                task.msg = change.clone();
+            }
+        }
 }
 
 fn ls(vector: &mut Vec<Task>) {
@@ -99,9 +116,8 @@ fn delete(vector: &mut Vec<Task>) {
         if flag == true{
             vector.remove(indextodelete);
         } else {
-            println!("Task not found!");
+            println!("Task not found, enter name again!");
             continue;
-        
         }
 
    
@@ -148,7 +164,6 @@ fn adding(vector: &mut Vec<Task>) {
         .expect("failed to get name of added task");
     
     let trimmed_name = task_name.trim().to_string();
-
     let last_index = vector.len() - 1;
     let prinum: u32 = last_index as u32;
 
