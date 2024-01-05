@@ -1,7 +1,1 @@
-[
-    {"msg": "take out trash", "priority": 1},
-
-    {"msg": "call girlfriend", "priority": 2},
-
-    {"msg": "code rust todo list", "priority": 3}
-]
+[{"msg":"code rust todo list","priority":2},{"msg":"check delete function","priority":3},{"msg":"hug gf","priority":4},{"msg":"massage girlfriends foot","priority":4},{"msg":"get goodnight rest","priority":5},{"msg":"break program","priority":6}]

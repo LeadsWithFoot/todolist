@@ -38,11 +38,7 @@ fn main() {
 
         match file.read_to_string(&mut contents) {
             Ok(_) => {
-                println!("File contents: \n{}", contents);
                 tasks = serde_json::from_str(&contents).expect("Unable to parse JSON");
-                for (index, task) in tasks.iter().enumerate() {
-                    println!("Index: {}, Task: {:?}", index, task);
-                }
             }
             Err(err) => {
                 eprintln!("Error reading file: {}", err);
@@ -66,7 +62,7 @@ fn main() {
         } else if action == "ls"{
             ls(&mut tasks);
         } else{
-            println!("invalid entry: {} \n Try again!", action);
+            println!("invalid entry: {} \nTry again!\n", action);
         }
     }
 }
@@ -97,18 +93,22 @@ fn quit(vector: &mut Vec<Task>) {
 }
 
 fn edit(vector: &mut Vec<Task>) {
+
+
     let mut choice = String::new();
     let mut change = String::new();
+    let mut flag = false;
 
-    println!("Which task would you like to edit:");
-    io::stdin()
-        .read_line(&mut choice)
-        .expect("failed to get users input");
+    loop{
+        println!("Which task would you like to edit:");
+        io::stdin()
+            .read_line(&mut choice)
+            .expect("failed to get users input");
 
-    println!("Replace task with?: ");
-    io::stdin()
-        .read_line(&mut change)
-        .expect("failed to get user input");
+        println!("Replace task with?: ");
+        io::stdin()
+            .read_line(&mut change)
+            .expect("failed to get user input");
         
         choice = choice.trim().to_string();
         change = change.trim().to_string();
@@ -116,14 +116,22 @@ fn edit(vector: &mut Vec<Task>) {
         for task in vector.iter_mut() {
             if task.msg == choice{
                 task.msg = change.clone();
+                flag = true;
             }
         }
+        if flag == false{
+            println!("Couldn't find task to edit, please try again!\n");
+            continue;
+        } else {break;};
+    }
+    
 }
 
 fn ls(vector: &mut Vec<Task>) {
     for (index, task) in vector.iter().enumerate() {
-        println!("Index: {}, Task: {:?}", index, task);
+        println!("{}: {}", index, task.msg);
     }
+    print!("\n")
 }
 
 fn delete(vector: &mut Vec<Task>) {
@@ -133,21 +141,19 @@ fn delete(vector: &mut Vec<Task>) {
     loop{
         let mut choice = String::new();
 
-        println!("Which task would you like to delete?");
+        println!("Enter 'menu' to go to menu,\nWhich task would you like to delete?");
         io::stdin()
             .read_line(&mut choice)
             .expect("failed to read line");
+
         choice = choice.trim().to_string();
+        if choice == "menu"{break;};
 
         let mut indextodelete = 0;
         let mut flag: bool = false;
         for (index, task) in vector.iter().enumerate() {
-            println!("Index: {}, {:?}", index, task);
-            println!("{:?}",task.msg);
-            println!("{}", choice);
             if task.msg == choice{
                 indextodelete = index;
-                println!("INDEX IS: {}", index);
                 flag = true;
             }
         }
@@ -155,20 +161,10 @@ fn delete(vector: &mut Vec<Task>) {
         if flag == true{
             vector.remove(indextodelete);
         } else {
-            println!("Task not found, enter name again!");
+            println!("Task not found, enter task again!");
             continue;
         }
 
-   
-        ls(vector);
-
-        for (index, task) in vector.iter_mut().enumerate() {
-            if index >= indextodelete{
-                println!("{}", task.priority);
-                println!("{}", (task.priority - 1));
-                task.priority -= 1;
-            }
-        }
         ls(vector);
         break;
     }
@@ -194,13 +190,13 @@ fn menu() -> String {
 }
 
 fn add(vector: &mut Vec<Task>) {
-    println!("What task would you like to add? :");
+    println!("What task would you like to add?");
 
     let mut task_name = String::new();
 
     io::stdin()
         .read_line(&mut task_name)
-        .expect("failed to get name of added task");
+        .expect("failed to get name of task");
     
     let trimmed_name = task_name.trim().to_string();
     let last_index = vector.len() - 1;
